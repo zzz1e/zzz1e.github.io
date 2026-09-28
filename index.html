@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--
+  ============================================================
+  LightPoseNet-Select 论文项目主页（仿 PersonaGest / Nerfies 风格单页静态站）
+  ============================================================
+  结构：单页静态站，无框架、无后端、无需构建工具。
+  本地预览：直接双击 index.html 在浏览器打开即可。
+
+  部署到 GitHub Pages（仓库 zzz1e/zzz1e.github.io，用户根仓库）：
+    1. 本目录全部内容上传/推送到仓库根目录（不是子文件夹）
+    2. 仓库 Settings -> Pages -> Source 选 "Deploy from a branch"
+       Branch 选 main、目录选 / (root)，保存
+    3. 约一分钟后访问 https://zzz1e.github.io/
+
+  所有资源都使用相对路径（不以 / 开头），子路径部署同样可用。
+
+  ★ 上线前必须替换的内容（全局搜索 TODO）：
+    - 作者列表与单位（hero 区）
+    - Paper / Code 按钮链接（默认注释掉，填好链接后取消注释）
+    - 四段实验视频的文字说明（02 Videos 区）
+    - 引用 BibTeX 条目（06 Citation 区）
+  -->
+  <title>LightPoseNet-Select — Monocular Pose Estimation for AUV Underwater Docking</title>
+  <meta name="description" content="LightPoseNet-Select: monocular 6-DoF pose estimation for AUV underwater docking with a planar light array — multi-task keypoint prediction, UE5 synthetic data, and learned branch selection.">
+  <script>document.documentElement.classList.add('js');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ================= 导航栏（锚点链接，随滚动高亮当前版块） ================= -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a class="brand" href="#top">Light<span>PoseNet</span></a>
+      <div class="nav-links">
+        <a href="#abstract">Abstract</a>
+        <a href="#videos">Videos</a>
+        <a href="#method">Method</a>
+        <a href="#showcase">Qualitative</a>
+        <a href="#evaluation">Evaluation</a>
+        <a href="#citation">Citation</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================= 标题区 ================= -->
+  <header class="hero" id="top">
+    <div class="container">
+      <h1 class="paper-title">LightPoseNet-Select: Monocular Pose Estimation for AUV Underwater Docking with a Planar Light&nbsp;Array</h1>
+      <!-- TODO: 换成真实作者列表，例如 Zhang San, Li Si, Wang Wu -->
+      <p class="authors">Author One&ensp;&middot;&ensp;Author Two&ensp;&middot;&ensp;Author Three</p>
+      <!-- TODO: 换成真实单位 -->
+      <p class="affiliation">Your University / Institution</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="#videos">Video</a>
+        <!-- TODO: 论文/代码就绪后取消注释并填入真实链接
+        <a class="btn btn-primary" href="#">Paper (PDF)</a>
+        <a class="btn" href="#">arXiv</a>
+        <a class="btn" href="#">Code</a>
+        -->
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+  <!-- ================= 01 摘要 ================= -->
+  <section id="abstract" class="section">
+    <div class="container">
+      <h2 class="sec-title"><span class="sec-num">01</span>&middot; Abstract</h2>
+      <div class="abstract-grid">
+        <div class="abstract-text">
+          <p>Autonomous Underwater Vehicles (AUVs) increasingly rely on seafloor docking stations for recharging and data offloading. In the final meters of docking, acoustic positioning lacks the angular resolution and update rate to provide the low-latency, centimeter-level 6-DoF relative pose that final alignment requires, so vision takes over. Active light arrays outperform passive markers in dim underwater scenes &mdash; but because all lamps lie on a single panel plane, pose recovery inherits the intrinsic <em>two-fold ambiguity</em> of planar configurations, and real underwater images with pose-level ground truth are prohibitively expensive to collect.</p>
+          <p>We present <b>LightPoseNet-Select</b>, a monocular framework that turns a single RGB image into a reliable relative pose for planar-station AUV docking. A UE5-based synthetic data system renders 55 docking trajectories (9,761 frames) under controllable turbidity, illumination, and viewing conditions, exporting semantic light-point labels, visibility flags, camera intrinsics, and ground-truth 6-DoF poses. <b>LightPoseNet</b>, a multi-task keypoint network, jointly predicts per-lamp heatmaps, visibility confidences, and geometric weights, and is trained with a <em>pose-sensitivity regularization</em> that ties image-space residuals to the SE(3) pose perturbation they induce. IPPE generates two analytic planar pose candidates, refined by weighted Levenberg&ndash;Marquardt and screened by physical feasibility; a learned <b>BranchSelectorNet</b> then fuses local appearance, candidate projections, and numeric pose features to pick the correct branch &mdash; gated by confidence so it overrides the default solution only when it is sure.</p>
+          <p>On the held-out test set, LightPoseNet localizes visible lamps with <b>1.037&nbsp;px</b> mean error (PCK@5&nbsp;=&nbsp;99.83%, visibility F1&nbsp;=&nbsp;99.93%), and the full pipeline outputs accepted poses on <b>99.95%</b> of evaluable frames at <b>0.140&nbsp;m</b> translation and <b>1.35&deg;</b> rotation error, running at 63.5&nbsp;FPS. BranchSelectorNet eliminates the most damaging ambiguity failures: seven corrected catastrophic frames drop from 39.36&deg; to 1.38&deg; mean rotation error &mdash; including one whose wrong branch showed only 0.109&nbsp;px reprojection error while hiding a 139.6&deg; pose error.</p>
+        </div>
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-light-array.jpeg" alt="T-shaped planar five-light array">
+          <figcaption>The T-shaped planar five-light array mounted on the docking station panel. Each lamp has a fixed semantic identity, so the network output directly establishes the 2D&ndash;3D correspondences required for pose solving.</figcaption>
+        </figure>
+      </div>
+
+      <h3 class="sub-title">Contributions</h3>
+      <ul class="contrib-list">
+        <li>A <b>UE5-based synthetic data generation system</b> for AUV light-array docking that automatically exports semantically identified keypoint labels, visibility flags, camera intrinsics, and ground-truth 6-DoF poses under controllable water turbidity, illumination, and viewing conditions.</li>
+        <li><b>LightPoseNet</b>, a multi-task keypoint network with heatmap, confidence, and geometric-weight heads, producing sub-pixel coordinates via Soft-Argmax. A projection-Jacobian <b>pose-sensitive regularization</b> aligns the keypoint objective with pose accuracy, constraining both pixel error and its induced SE(3) rotation/translation effects.</li>
+        <li>An <b>IPPE + learned branch-selection</b> planar pose pipeline: analytic dual candidates, weighted LM refinement, physical feasibility screening, and a BranchSelectorNet that fuses local appearance, geometric projections, and numeric pose features under a high-confidence gate.</li>
+        <li>Validation on the synthetic test set: <b>1.037&nbsp;px</b> mean keypoint error, <b>99.95%</b> pose acceptance, and <b>0.140&nbsp;m / 1.35&deg;</b> pose accuracy under degraded underwater visual conditions.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= 02 实验视频 ================= -->
+  <section id="videos" class="section section-alt">
+    <div class="container">
+      <h2 class="sec-title"><span class="sec-num">02</span>&middot; Videos</h2>
+
+      <h3 class="sub-title">Experiment Recordings</h3>
+      <!-- TODO: 可按需补充每段录像的具体条件（距离、浑浊度等） -->
+      <p class="sub-desc">Screen recordings of the test pipeline running on synthetic docking sequences. Left: onboard camera view with live semantic-keypoint and pose overlays; right: reference top view of the AUV approaching the docking station. Click a video to play; all recordings are muted.</p>
+
+      <div class="video-grid-4 reveal">
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0001.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Docking sequence 01 &mdash; pipeline test run</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0002.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Docking sequence 02 &mdash; pipeline test run</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0003.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Docking sequence 03 &mdash; pipeline test run</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0004.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Docking sequence 04 &mdash; cropped to the two main views</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 03 方法 ================= -->
+  <section id="method" class="section">
+    <div class="container">
+      <h2 class="sec-title"><span class="sec-num">03</span>&middot; Method</h2>
+
+      <figure class="fig-card fig-wide reveal">
+        <img src="static/figures/fig-overview.png" alt="LightPoseNet-Select framework overview">
+        <figcaption><b>Overview.</b> LightPoseNet-Select is an end-to-end monocular pose estimation pipeline: semantic light-point detection &rarr; IPPE planar pose candidates &rarr; weighted LM refinement and physical feasibility screening &rarr; learned branch selection with confidence gating. Given a single RGB image, LightPoseNet predicts the 2D positions, visibility confidences, and geometric weights of five semantically identified light points; the retained 2D&ndash;3D correspondences are solved into two analytic pose candidates, and BranchSelectorNet decides &mdash; only under high confidence &mdash; whether the non-default branch should replace the traditional re-projection ranking.</figcaption>
+      </figure>
+
+      <h3 class="sub-title">Synthetic Data Generation (UE5)</h3>
+      <p class="sub-desc">A UE5 underwater docking scene contains an AUV, a docking station carrying the T-shaped five-light planar array, and an onboard virtual camera (45&deg; downward pitch, 100&deg; FOV, 1280&times;720 at 10&nbsp;Hz). Rendering parameters vary water fog density, scene brightness, and marine-snow particle density to cover typical end-game visual degradation. 55 docking trajectories &mdash; 9,761 frames &mdash; are exported with camera intrinsics, AUV/station poses, and light-array geometry, from which keypoint, visibility, and 6-DoF pose ground truth are derived via the projection model. The split is trajectory-level (33/11/11) to prevent information leakage between adjacent frames.</p>
+      <div class="stage-grid">
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-ue5-scene.png" alt="UE5 simulation scene">
+          <figcaption><b>Simulation scene.</b> The AUV (camera rigidly mounted underneath, pitched 45&deg; down) approaches the docking station along spline trajectories; the station carries the guide rod for coarse heading and the T-shaped lamp array for terminal-phase pose estimation.</figcaption>
+        </figure>
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-scenarios.png" alt="Dataset scenarios with varying degradation">
+          <figcaption><b>Degradation scenarios.</b> Fog density (0.5&ndash;5.0), camera range (15&rarr;1&nbsp;m), scene luminance (10&ndash;40), and Niagara marine-snow density (0&ndash;1500) jointly simulate attenuation, scattering, color shift, blur, and scale variation.</figcaption>
+        </figure>
+      </div>
+
+      <div class="star-divider" aria-hidden="true">* * *</div>
+
+      <h3 class="sub-title">LightPoseNet: Multi-Task Keypoint Prediction</h3>
+      <p class="sub-desc">LightPoseNet is a fully convolutional encoder&ndash;decoder that casts light-array detection as <em>named semantic keypoint prediction</em>: each output channel is bound to one predefined lamp, so detection, identity assignment, and 2D&ndash;3D correspondence are solved in a single pass. Three parallel heads on shared features predict per-lamp heatmaps <b>H</b> (where the lamp is), confidences <b>C</b> (whether the observation is reliable), and geometric weights <b>W</b> (how much it should constrain the pose). Coordinates are decoded by temperature-softened Soft-Argmax for sub-pixel accuracy with differentiable gradients.</p>
+      <div class="stage-grid">
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-network.png" alt="LightPoseNet architecture">
+          <figcaption><b>Architecture.</b> ConvBlock shallow encoding, four down-sampling stages, and three up-sampling fusion modules with skip connections feed the parallel H/C/W heads (N semantic channels each, N&nbsp;=&nbsp;5).</figcaption>
+        </figure>
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-selector.png" alt="BranchSelectorNet architecture">
+          <figcaption><b>BranchSelectorNet.</b> For each candidate, a 4-channel geometric projection map is encoded together with the cropped local RGB patch (160&times;160) and a 24-D numeric pose vector. A shared-parameter pairwise scorer with signed/absolute difference features outputs branch probabilities; only switches away from the default candidate that exceed the confidence threshold &tau;<sub>sel</sub> are accepted.</figcaption>
+        </figure>
+      </div>
+
+      <p class="sub-desc">Training combines heatmap, visibility, keypoint, and weighted geometric losses with a <b>pose-sensitive regularization</b>: stacking the projection Jacobians of all visible lamps yields a weighted damped least-squares problem whose solution is the virtual 6-DoF pose perturbation best explaining the current keypoint residuals. Penalizing that perturbation aligns pixel-level learning with downstream pose accuracy. At inference, confidence and heatmap peaks are fused into an active-point selection score; only reliable lamps enter the pose solver.</p>
+
+      <!-- 点击 "Show more" 后展开：问题定义与损失函数细节 -->
+      <div class="more-block" id="moreMethod">
+        <div class="stage-grid">
+          <figure class="fig-card">
+            <img src="static/figures/fig-coords.png" alt="Coordinate frames and projection model">
+            <figcaption><b>Problem formulation.</b> Coordinate frames and projection model. The light array is represented by known 3D points in the array frame; with intrinsics K and identified image points, the goal is the relative pose T<sub>CL</sub> from the array frame to the camera frame.</figcaption>
+          </figure>
+          <figure class="fig-card">
+            <img src="static/figures/fig-loss.png" alt="Multi-task loss with pose-sensitive regularization">
+            <figcaption><b>Training objective.</b> Multi-task loss flow: heatmap and visibility supervision, geometric-weighted coordinate regression, and the pose-sensitivity regularizer linking keypoint residuals to SE(3) pose perturbations with staged warm-up.</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="btn-center">
+        <button class="more-btn" data-toggle="#moreMethod"><span class="btn-label">Problem formulation &amp; loss details</span><span class="caret"></span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 定性结果 ================= -->
+  <section id="showcase" class="section section-alt">
+    <div class="container">
+      <h2 class="sec-title"><span class="sec-num">04</span>&middot; Qualitative Results</h2>
+
+      <figure class="fig-card fig-wide reveal">
+        <img src="static/figures/fig-hcw.png" alt="Actual H, C and W outputs of the best checkpoint">
+        <figcaption><b>H / C / W outputs.</b> Actual predictions of the best LightPoseNet checkpoint on a test image. Heatmaps <b>H</b> peak at the five semantic lamps and decode into coordinates; confidence maps <b>C</b> stay high across the array region to gate reliability; weight maps <b>W</b> respond over a wider range, shaping each observation&rsquo;s contribution in IPPE and weighted LM refinement. In this sample, all five active-point scores exceed 0.99.</figcaption>
+      </figure>
+
+      <div class="stage-grid">
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-heatmap-dist.png" alt="Keypoint heatmaps at different distances">
+          <figcaption><b>Heatmaps across distances.</b> Light-array localization at different viewing distances &mdash; semantic correspondence is maintained as the array scale and degradation level vary.</figcaption>
+        </figure>
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-dist-results.png" alt="Per-frame keypoint and pose results at 3, 5, 7 and 10 meters">
+          <figcaption><b>Per-frame results.</b> Four samples at 3.00, 4.60, 6.26, and 8.52&nbsp;m with keypoint and pose readouts generated by the test program (in-figure text is raw debug output).</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 05 评估 ================= -->
+  <section id="evaluation" class="section">
+    <div class="container">
+      <h2 class="sec-title"><span class="sec-num">05</span>&middot; Evaluation</h2>
+
+      <!-- 5.1 关键点定位 -->
+      <h3 class="sub-title">Keypoint Localization</h3>
+      <p class="sub-desc">Test set: 2,205 frames, 9,636 visible semantic lamp points. Errors are 2D Euclidean distances in full-resolution image coordinates.</p>
+      <div class="table-wrap reveal">
+        <table>
+          <thead>
+            <tr>
+              <th>Light</th>
+              <th>Points</th>
+              <th>Mean&nbsp;(px)</th>
+              <th>Median&nbsp;(px)</th>
+              <th>P95&nbsp;(px)</th>
+              <th>PCK@2&nbsp;(%)</th>
+              <th>PCK@5&nbsp;(%)</th>
+              <th>PCK@10&nbsp;(%)</th>
+              <th>AUC@10px</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="ours-row">
+              <td>All</td><td>9,636</td><td><span class="best">1.037</span></td><td><span class="best">0.755</span></td><td><span class="best">2.329</span></td><td>90.87</td><td><span class="best">99.83</span></td><td>99.95</td><td>90.48</td>
+            </tr>
+            <tr><td>Top-left</td><td>1,968</td><td>1.110</td><td>0.826</td><td>2.843</td><td>83.74</td><td>99.64</td><td>100.00</td><td>88.90</td></tr>
+            <tr><td>Top-middle</td><td>1,967</td><td>0.864</td><td>0.681</td><td>2.126</td><td>93.49</td><td>99.85</td><td>100.00</td><td>91.36</td></tr>
+            <tr><td>Top-right</td><td>1,970</td><td>1.277</td><td>0.732</td><td>1.977</td><td>95.23</td><td>99.80</td><td>99.80</td><td>91.26</td></tr>
+            <tr><td>Center</td><td>1,899</td><td>0.938</td><td>0.736</td><td>2.260</td><td>91.84</td><td>99.95</td><td>99.95</td><td>90.74</td></tr>
+            <tr><td>Bottom-middle</td><td>1,832</td><td>0.987</td><td>0.817</td><td>2.244</td><td>90.01</td><td>99.95</td><td>100.00</td><td>90.13</td></tr>
+          </tbody>
+        </table>
+        <p class="table-note">PCK-AUC is the integral of the PCK curve over 0&ndash;10&nbsp;px divided by 10. 95% of visible lamps are localized within 2.33&nbsp;px.</p>
+      </div>
+      <div class="stage-grid">
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-pck-curves.png" alt="PCK curves for the whole set and each semantic lamp">
+          <figcaption>PCK curves over the whole test set and per semantic lamp (x-axis: pixel error threshold in the original image).</figcaption>
+        </figure>
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-per-light.png" alt="Per-lamp localization accuracy comparison">
+          <figcaption>Per-lamp localization accuracy comparison.</figcaption>
+        </figure>
+      </div>
+
+      <!-- 5.2 可见性判别 -->
+      <h3 class="sub-title">Visibility Prediction</h3>
+      <div class="stat-cards reveal">
+        <div class="stat-card">
+          <div class="stat-num">99.927<small>%</small></div>
+          <p>Precision of lamp visibility decisions</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">99.938<small>%</small></div>
+          <p>Recall of lamp visibility decisions</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">99.933<small>%</small></div>
+          <p>F1 score</p>
+        </div>
+      </div>
+      <p class="sub-desc">Across the whole test set, only 6 lamp misses and 7 false alarms on invisible lamps occurred (false-alarm rate 0.504%), showing that the network effectively suppresses spurious responses on invisible semantic channels.</p>
+
+      <!-- 5.3 位姿估计 -->
+      <h3 class="sub-title">Pose Estimation</h3>
+      <p class="sub-desc">Evaluated on the fixed set of 1,897 frames whose ground truth has at least four visible lamps. Translation error is the L2 norm; rotation error is the geodesic angle.</p>
+      <div class="table-wrap reveal">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Accepted / Solvable</th>
+              <th>Translation&nbsp;L2&nbsp;(m) <span class="arrow">&darr;</span></th>
+              <th>Depth&nbsp;err&nbsp;(m) <span class="arrow">&darr;</span></th>
+              <th>Rotation&nbsp;err&nbsp;(&deg;) <span class="arrow">&darr;</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Default candidate</td><td>1896 / 1897</td><td>0.1413</td><td>0.1259</td><td>1.488</td></tr>
+            <tr><td>Strict rejection</td><td>1709 / 1897</td><td><span class="second">0.1262</span></td><td><span class="second">0.1130</span></td><td><span class="second">1.388</span></td></tr>
+            <tr class="ours-row"><td>Branch selector (ours)</td><td>1896 / 1897</td><td><span class="best">0.1403</span></td><td><span class="best">0.1250</span></td><td><span class="best">1.348</span></td></tr>
+          </tbody>
+        </table>
+        <p class="table-note">At the same acceptance count (99.95%), the selector reduces mean translation error from 0.1413&nbsp;m to 0.1403&nbsp;m, depth error from 0.1259&nbsp;m to 0.1250&nbsp;m, and rotation error from 1.488&deg; to 1.348&deg;. Strict rejection scores lower only by discarding 188 ambiguous frames (acceptance drops to 90%) &mdash; a precision&ndash;coverage trade-off, not a better solver.</p>
+      </div>
+
+      <!-- 5.4 距离分析 -->
+      <h3 class="sub-title">Accuracy vs. Distance</h3>
+      <p class="sub-desc">The docking station is 8&nbsp;m long; the light array guides the final approach roughly between 2&ndash;10&nbsp;m. Below 2&nbsp;m the camera can no longer see all five lamps, and fewer than five correspondences degrade the solution.</p>
+      <div class="table-wrap reveal">
+        <table>
+          <thead>
+            <tr>
+              <th>Distance</th>
+              <th>Accepted frames</th>
+              <th>Translation mean&nbsp;(m)</th>
+              <th>Rotation mean&nbsp;(&deg;)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>&lt; 2&nbsp;m</td><td>6</td><td>0.064</td><td>8.502</td></tr>
+            <tr><td>2&ndash;4&nbsp;m</td><td>419</td><td><span class="best">0.029</span></td><td>1.724</td></tr>
+            <tr><td>4&ndash;6&nbsp;m</td><td>365</td><td><span class="second">0.041</span></td><td><span class="best">0.894</span></td></tr>
+            <tr><td>6&ndash;8&nbsp;m</td><td>345</td><td>0.101</td><td>1.190</td></tr>
+            <tr><td>&ge; 8&nbsp;m</td><td>761</td><td>0.268</td><td>1.373</td></tr>
+          </tbody>
+        </table>
+        <p class="table-note">In the primary docking range of 2&ndash;6&nbsp;m, x/y-axis errors stay below 1&nbsp;cm and rotation near 1&deg;; most residual translation error concentrates on the depth (z) axis &mdash; the inherent depth degeneracy of a planar array.</p>
+      </div>
+      <div class="stage-grid">
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-pose-error.png" alt="Pose error curves across distance ranges">
+          <figcaption>Overall pose error across distance ranges.</figcaption>
+        </figure>
+        <figure class="fig-card reveal">
+          <img src="static/figures/fig-branch-fix.png" alt="BranchSelectorNet correction of catastrophic frames">
+          <figcaption><b>Branch correction.</b> Rotation errors of the seven correctly re-branched frames: every one was a catastrophic frame (&gt;10&deg; rotation error) under the default re-projection ranking.</figcaption>
+        </figure>
+      </div>
+
+      <!-- 分轴误差明细（可折叠） -->
+      <div class="more-block" id="moreAxis">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Distance</th>
+                <th>|&Delta;x|&nbsp;(cm)</th>
+                <th>|&Delta;y|&nbsp;(cm)</th>
+                <th>|&Delta;z|&nbsp;(cm)</th>
+                <th>|&delta;&theta;<sub>x</sub>|&nbsp;(&deg;)</th>
+                <th>|&delta;&theta;<sub>y</sub>|&nbsp;(&deg;)</th>
+                <th>|&delta;&theta;<sub>z</sub>|&nbsp;(&deg;)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>&lt; 2&nbsp;m</td><td>0.32</td><td>3.31</td><td>5.48</td><td>8.200</td><td>1.828</td><td>0.980</td></tr>
+              <tr><td>2&ndash;4&nbsp;m</td><td><span class="best">0.17</span></td><td><span class="best">0.70</span></td><td>2.75</td><td>1.472</td><td>0.561</td><td><span class="best">0.250</span></td></tr>
+              <tr><td>4&ndash;6&nbsp;m</td><td>0.48</td><td>1.00</td><td>3.84</td><td><span class="best">0.522</span></td><td><span class="best">0.476</span></td><td>0.303</td></tr>
+              <tr><td>6&ndash;8&nbsp;m</td><td>0.65</td><td>3.83</td><td>9.23</td><td>0.813</td><td>0.512</td><td>0.592</td></tr>
+              <tr><td>&ge; 8&nbsp;m</td><td>1.56</td><td>12.36</td><td>23.56</td><td>0.646</td><td>0.902</td><td>0.504</td></tr>
+            </tbody>
+          </table>
+          <p class="table-note">Mean absolute per-axis translation error (camera frame) and Rodrigues rotation-error components.</p>
+        </div>
+      </div>
+      <div class="btn-center">
+        <button class="more-btn" data-toggle="#moreAxis"><span class="btn-label">Per-axis error breakdown</span><span class="caret"></span></button>
+      </div>
+
+      <!-- 5.5 分支选择器分析 -->
+      <h3 class="sub-title">BranchSelectorNet Analysis</h3>
+      <p class="sub-desc">Among 1,896 valid dual-candidate frames, 27 carried wrong-branch results that would cause severe long-tail errors, including large-angle flips. With the fixed 0.90 confidence gate, BranchSelectorNet made <b>7 correct switches and 0 wrong switches</b>. On the same 1,896 accepted frames, catastrophic rotations above 10&deg; drop from 10 frames to 3, above 30&deg; from 4 to 1, and the single frame above 90&deg; is eliminated.</p>
+      <div class="stat-cards reveal">
+        <div class="stat-card">
+          <div class="stat-num">39.36&deg;<small>&rarr; 1.38&deg;</small></div>
+          <p>Mean rotation error of the 7 corrected catastrophic frames (&minus;96.5%)</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">0.312<small>m &rarr; 0.047 m</small></div>
+          <p>Their mean translation error (&minus;85.0%)</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">139.6&deg;<small>&rarr; 0.97&deg;</small></div>
+          <p>Worst-case fix: frame D73-000000, switched at 0.9988 confidence</p>
+        </div>
+      </div>
+      <figure class="fig-card fig-wide reveal">
+        <img src="static/figures/fig-catastrophic.png" alt="Catastrophic ambiguity failures corrected by BranchSelectorNet">
+        <figcaption><b>Catastrophic-branch examples.</b> In frame D73-000000, the default IPPE candidate shows only 0.109&nbsp;px reprojection error while carrying a 139.62&deg; rotation and 1.09&nbsp;m translation error &mdash; both planar branches explain the 2D lamps well, so re-projection residuals alone cannot identify the array normal. Fusing candidate geometry with image appearance, BranchSelectorNet switches the branch at 0.9988 confidence, reducing the errors to 0.97&deg; and 0.25&nbsp;m. Four consecutive frames (D73-000216&ndash;000219) are all correctly re-branched, showing the decision is stable across neighboring viewpoints.</figcaption>
+      </figure>
+
+      <!-- 5.6 运行效率 -->
+      <h3 class="sub-title">Runtime</h3>
+      <div class="stat-cards reveal">
+        <div class="stat-card">
+          <div class="stat-num">15.74<small>ms / frame</small></div>
+          <p>Full pipeline (detection + pose solving + selection), single RTX 4070 SUPER</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">63.5<small>FPS</small></div>
+          <p>Average throughput, well above the 10&nbsp;Hz camera rate</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">7.09<small>M params</small></div>
+          <p>LightPoseNet 6.377&nbsp;M + BranchSelectorNet 0.708&nbsp;M</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 06 引用 ================= -->
+  <section id="citation" class="section section-alt">
+    <div class="container">
+      <h2 class="sec-title"><span class="sec-num">06</span>&middot; Citation</h2>
+      <div class="cite-card reveal">
+        <button class="copy-btn" id="copyBib" type="button">Copy</button>
+        <!-- TODO: 论文投稿/发表后替换为正式的 BibTeX 条目 -->
+        <pre id="bibText">@article{lightposenet2026,
+  title   = {LightPoseNet-Select: Monocular Pose Estimation for AUV
+             Underwater Docking with a Planar Light Array},
+  author  = {Author, One and Author, Two and Author, Three},
+  journal = {TODO},
+  year    = {2026}
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ================= 页脚 ================= -->
+  <footer class="footer">
+    <p>This website is licensed under a <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+    <p class="footer-note">Template adapted from <a href="https://github.com/nerfies/nerfies.github.io" target="_blank" rel="noopener">Nerfies</a>.</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
