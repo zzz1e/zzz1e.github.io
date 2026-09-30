@@ -15,7 +15,7 @@
   --card-bg: #f8f8fc;
   --bg-alt: #fafaff;
   --radius: 14px;
-  --maxw: 1000px;
+  --maxw: 1320px;
   --shadow: 0 6px 24px rgba(28, 25, 70, 0.07);
   --shadow-lift: 0 12px 32px rgba(28, 25, 70, 0.13);
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -225,12 +225,36 @@ img { max-width: 100%; display: block; }
   gap: 44px;
   align-items: start;
 }
+/* 摘要区整体外框卡片（仿 PersonaGest Overview 风格） */
+.abstract-panel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 34px 38px;
+  box-shadow: 0 10px 34px rgba(15, 23, 42, 0.06);
+}
+
+/* 摘要正文：左侧竖条 + 浅灰底的引言框 */
+.abstract-text {
+  background: #f6f7f9;
+  border-left: 4px solid var(--accent, #5b4fc7);
+  border-radius: 8px;
+  padding: 24px 28px;
+}
 .abstract-text p {
   font-size: 15.5px;
   line-height: 1.78;
   color: var(--body-text);
+  text-align: justify;   /* 两端对齐 */
+  hyphens: auto;         /* 长单词自动断词，避免行间大空隙 */
 }
 .abstract-text p + p { margin-top: 16px; }
+
+/* 摘要区下方的大图（上下结构，卡片内居中） */
+.abstract-fig {
+  max-width: 780px;
+  margin: 28px auto 0;
+}
 
 /* ---------------- 图片卡片 ---------------- */
 
@@ -651,6 +675,8 @@ html.js .reveal.visible {
 
 @media (max-width: 900px) {
   .abstract-grid { grid-template-columns: 1fr; gap: 28px; }
+  .abstract-panel { padding: 22px 20px; }
+  .abstract-text { padding: 18px 20px; }
   .stage-grid { grid-template-columns: 1fr; }
   .combo-row { grid-template-columns: 1fr; }
   .combo-op { height: 34px; font-size: 22px; }
@@ -685,12 +711,12 @@ html.js .reveal.visible {
   }
 }
 
-/* ---------------- 02 视频卡片网格（实验录像 2×2 布局） ---------------- */
+/* ---------------- 02 视频列表（实验录像，一个视频一行） ---------------- */
 
-.video-grid-4 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+.video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   margin-bottom: 28px;
 }
 
@@ -712,6 +738,8 @@ html.js .reveal.visible {
   aspect-ratio: 16 / 9;
   background: #05060a;
 }
+/* 视频列表里是 5120×1440 超宽屏录像，框体按 32:9 匹配，避免上下黑边 */
+.video-list .video-box { aspect-ratio: 32 / 9; }
 .video-box video {
   position: absolute;
   inset: 0;
@@ -728,7 +756,7 @@ html.js .reveal.visible {
 }
 
 @media (max-width: 760px) {
-  .video-grid-4 { grid-template-columns: 1fr; }
+  .video-list { gap: 16px; }
 }
 
 /* ---------------- 01 贡献列表 ---------------- */

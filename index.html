@@ -25,7 +25,7 @@
     - 引用 BibTeX 条目（06 Citation 区）
   -->
   <title>LightPoseNet-Select — Monocular Pose Estimation for AUV Underwater Docking</title>
-  <meta name="description" content="LightPoseNet-Select: monocular 6-DoF pose estimation for AUV underwater docking with a planar light array — multi-task keypoint prediction, UE5 synthetic data, and learned branch selection.">
+  <meta name="description" content="LightPoseNet-Select: vision-based relative pose estimation for AUV terminal docking with planar light arrays — UE5 synthetic dataset, pose-sensitive keypoint network, and IPPE with learned branch selection.">
   <script>document.documentElement.classList.add('js');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,11 +54,11 @@
     <div class="container">
       <h1 class="paper-title">LightPoseNet-Select: Monocular Pose Estimation for AUV Underwater Docking with a Planar Light&nbsp;Array</h1>
       <!-- TODO: 换成真实作者列表，例如 Zhang San, Li Si, Wang Wu -->
-      <p class="authors">Author One&ensp;&middot;&ensp;Author Two&ensp;&middot;&ensp;Author Three</p>
+      <p class="authors">Leyi Zhang&ensp;&middot;&ensp;Tiedong Zhang*&ensp;&middot;&ensp;Chengxiang Li</p>
       <!-- TODO: 换成真实单位 -->
-      <p class="affiliation">Your University / Institution</p>
+      <p class="affiliation">School of Ocean Engineering and Technology, Sun Yat-sen University</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="#videos">Video</a>
+        <a class="btn btn-primary" href="#videos">Experiment</a>
         <!-- TODO: 论文/代码就绪后取消注释并填入真实链接
         <a class="btn btn-primary" href="#">Paper (PDF)</a>
         <a class="btn" href="#">arXiv</a>
@@ -73,91 +73,50 @@
   <!-- ================= 01 摘要 ================= -->
   <section id="abstract" class="section">
     <div class="container">
-      <h2 class="sec-title"><span class="sec-num">01</span>&middot; Abstract</h2>
-      <div class="abstract-grid">
+      <h2 class="sec-title"><span class="sec-num">01</span>&middot; Overview</h2>
+      <!-- 摘要区改为上下结构：文字在上，对接流程图在下；整体套一个白底卡片框 -->
+      <div class="abstract-panel">
         <div class="abstract-text">
-          <p>Autonomous Underwater Vehicles (AUVs) increasingly rely on seafloor docking stations for recharging and data offloading. In the final meters of docking, acoustic positioning lacks the angular resolution and update rate to provide the low-latency, centimeter-level 6-DoF relative pose that final alignment requires, so vision takes over. Active light arrays outperform passive markers in dim underwater scenes &mdash; but because all lamps lie on a single panel plane, pose recovery inherits the intrinsic <em>two-fold ambiguity</em> of planar configurations, and real underwater images with pose-level ground truth are prohibitively expensive to collect.</p>
-          <p>We present <b>LightPoseNet-Select</b>, a monocular framework that turns a single RGB image into a reliable relative pose for planar-station AUV docking. A UE5-based synthetic data system renders 55 docking trajectories (9,761 frames) under controllable turbidity, illumination, and viewing conditions, exporting semantic light-point labels, visibility flags, camera intrinsics, and ground-truth 6-DoF poses. <b>LightPoseNet</b>, a multi-task keypoint network, jointly predicts per-lamp heatmaps, visibility confidences, and geometric weights, and is trained with a <em>pose-sensitivity regularization</em> that ties image-space residuals to the SE(3) pose perturbation they induce. IPPE generates two analytic planar pose candidates, refined by weighted Levenberg&ndash;Marquardt and screened by physical feasibility; a learned <b>BranchSelectorNet</b> then fuses local appearance, candidate projections, and numeric pose features to pick the correct branch &mdash; gated by confidence so it overrides the default solution only when it is sure.</p>
-          <p>On the held-out test set, LightPoseNet localizes visible lamps with <b>1.037&nbsp;px</b> mean error (PCK@5&nbsp;=&nbsp;99.83%, visibility F1&nbsp;=&nbsp;99.93%), and the full pipeline outputs accepted poses on <b>99.95%</b> of evaluable frames at <b>0.140&nbsp;m</b> translation and <b>1.35&deg;</b> rotation error, running at 63.5&nbsp;FPS. BranchSelectorNet eliminates the most damaging ambiguity failures: seven corrected catastrophic frames drop from 39.36&deg; to 1.38&deg; mean rotation error &mdash; including one whose wrong branch showed only 0.109&nbsp;px reprojection error while hiding a 139.6&deg; pose error.</p>
-        </div>
-        <figure class="fig-card reveal">
-          <img src="static/figures/fig-light-array.jpeg" alt="T-shaped planar five-light array">
-          <figcaption>The T-shaped planar five-light array mounted on the docking station panel. Each lamp has a fixed semantic identity, so the network output directly establishes the 2D&ndash;3D correspondences required for pose solving.</figcaption>
-        </figure>
-      </div>
+          <!-- <p>Autonomous underwater vehicle (AUV) terminal docking imposes stringent requirements on the accuracy of relative pose estimation. During the final alignment stage of guide-rod-assisted platform docking stations, vision-based localization using planar light arrays is constrained by unstable semantic correspondences, insufficient keypoint localization accuracy, and the inherent two-solution ambiguity of planar Perspective-<em>n</em>-Point (PnP), making conventional methods inadequate for high-precision docking. A semantically annotated underwater docking dataset is first constructed using Unreal Engine 5 (UE5). Based on this dataset, a keypoint detection network, <b>LightPoseNet</b>, is developed to predict semantically labeled light points. A pose-sensitive regularization term is further introduced to guide the network toward keypoints that have greater influence on pose estimation, thereby establishing reliable 2D&ndash;3D correspondences. To resolve the intrinsic two-solution ambiguity of planar configurations, Infinitesimal Plane-Based Pose Estimation (IPPE) is employed to generate two pose candidates, and <b>BranchSelectorNet</b> is designed for learning-based branch selection. By jointly exploiting image appearance, geometric projections, and numerical pose features, BranchSelectorNet can correct erroneous branches produced by conventional reprojection-based ranking under degenerate viewpoints and thus reliably determine the correct pose. Experimental results show that <b>LightPoseNet-Select</b> achieves a mean keypoint localization error of <b>1.037&nbsp;px</b>. BranchSelectorNet successfully corrects seven catastrophic cases, reducing their mean rotation error from <b>39.36&deg;</b> to <b>1.38&deg;</b>. Further UE5-Simulink closed-loop simulations demonstrate successful vision-guided docking under different initial yaw angles, with a mean terminal position error of <b>0.0296&nbsp;m</b>. These results demonstrate that the proposed method provides accurate and reliable relative pose estimation for terminal docking with planar stations, offering a robust visual perception basis for autonomous AUV docking.</p> -->
 
+        <p>Autonomous underwater vehicle (AUV) terminal docking requires accurate and reliable relative pose estimation. However, planar light-array localization is challenged by unstable semantic correspondences, keypoint localization errors, and the inherent two-solution ambiguity of planar planar Perspective-<em>n</em>-Point (PnP).
+        We propose <b>LightPoseNet-Select</b>, a learning-geometry framework for terminal AUV docking. <b>LightPoseNet</b> predicts semantic light keypoints with pose-sensitive supervision to establish reliable 2D-3D correspondences, while IPPE generates planar pose candidates and <b>BranchSelectorNet</b>  resolves ambiguous branches by jointly exploiting image appearance, geometric projections, and numerical pose features.
+        LightPoseNet-Select achieves a mean keypoint localization error of <b>1.037&nbsp;px</b>. BranchSelectorNet corrects seven catastrophic pose failures, reducing their mean rotation error from <b>39.36&deg;</b> to <b>1.38&deg;</b>. Closed-loop UE5–Simulink simulations further demonstrate successful vision-guided docking under different initial yaw angles, with a mean terminal position error of <b>0.0296&nbsp;m</b>.</p>
+      </div>
+      <figure class="fig-card reveal abstract-fig">
+        <img src="static/figures/fig-docking-process.jpg" alt="Vision-guided AUV docking process">
+        <figcaption><b>The vision-guided AUV docking process.</b> The AUV first performs rough guidance via the guide rod, then switches to precision guidance via the light arrays in the terminal stage, completes guide-rod docking, and finally lands on the platform.</figcaption>
+      </figure>
+      </div>
+<!-- 
       <h3 class="sub-title">Contributions</h3>
       <ul class="contrib-list">
         <li>A <b>UE5-based synthetic data generation system</b> for AUV light-array docking that automatically exports semantically identified keypoint labels, visibility flags, camera intrinsics, and ground-truth 6-DoF poses under controllable water turbidity, illumination, and viewing conditions.</li>
         <li><b>LightPoseNet</b>, a multi-task keypoint network with heatmap, confidence, and geometric-weight heads, producing sub-pixel coordinates via Soft-Argmax. A projection-Jacobian <b>pose-sensitive regularization</b> aligns the keypoint objective with pose accuracy, constraining both pixel error and its induced SE(3) rotation/translation effects.</li>
         <li>An <b>IPPE + learned branch-selection</b> planar pose pipeline: analytic dual candidates, weighted LM refinement, physical feasibility screening, and a BranchSelectorNet that fuses local appearance, geometric projections, and numeric pose features under a high-confidence gate.</li>
         <li>Validation on the synthetic test set: <b>1.037&nbsp;px</b> mean keypoint error, <b>99.95%</b> pose acceptance, and <b>0.140&nbsp;m / 1.35&deg;</b> pose accuracy under degraded underwater visual conditions.</li>
-      </ul>
+      </ul> -->
     </div>
   </section>
 
-  <!-- ================= 02 实验视频 ================= -->
-  <section id="videos" class="section section-alt">
-    <div class="container">
-      <h2 class="sec-title"><span class="sec-num">02</span>&middot; Videos</h2>
-
-      <h3 class="sub-title">Experiment Recordings</h3>
-      <!-- TODO: 可按需补充每段录像的具体条件（距离、浑浊度等） -->
-      <p class="sub-desc">Screen recordings of the test pipeline running on synthetic docking sequences. Left: onboard camera view with live semantic-keypoint and pose overlays; right: reference top view of the AUV approaching the docking station. Click a video to play; all recordings are muted.</p>
-
-      <div class="video-grid-4 reveal">
-        <figure class="video-card">
-          <div class="video-box">
-            <video controls muted loop playsinline preload="metadata">
-              <source src="static/videos/rec-0001.mp4" type="video/mp4">
-            </video>
-          </div>
-          <figcaption>Docking sequence 01 &mdash; pipeline test run</figcaption>
-        </figure>
-        <figure class="video-card">
-          <div class="video-box">
-            <video controls muted loop playsinline preload="metadata">
-              <source src="static/videos/rec-0002.mp4" type="video/mp4">
-            </video>
-          </div>
-          <figcaption>Docking sequence 02 &mdash; pipeline test run</figcaption>
-        </figure>
-        <figure class="video-card">
-          <div class="video-box">
-            <video controls muted loop playsinline preload="metadata">
-              <source src="static/videos/rec-0003.mp4" type="video/mp4">
-            </video>
-          </div>
-          <figcaption>Docking sequence 03 &mdash; pipeline test run</figcaption>
-        </figure>
-        <figure class="video-card">
-          <div class="video-box">
-            <video controls muted loop playsinline preload="metadata">
-              <source src="static/videos/rec-0004.mp4" type="video/mp4">
-            </video>
-          </div>
-          <figcaption>Docking sequence 04 &mdash; cropped to the two main views</figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= 03 方法 ================= -->
+  
+  <!-- ================= 02 方法 ================= -->
   <section id="method" class="section">
     <div class="container">
-      <h2 class="sec-title"><span class="sec-num">03</span>&middot; Method</h2>
+      <h2 class="sec-title"><span class="sec-num">02</span>&middot; Method</h2>
 
       <figure class="fig-card fig-wide reveal">
         <img src="static/figures/fig-overview.png" alt="LightPoseNet-Select framework overview">
-        <figcaption><b>Overview.</b> LightPoseNet-Select is an end-to-end monocular pose estimation pipeline: semantic light-point detection &rarr; IPPE planar pose candidates &rarr; weighted LM refinement and physical feasibility screening &rarr; learned branch selection with confidence gating. Given a single RGB image, LightPoseNet predicts the 2D positions, visibility confidences, and geometric weights of five semantically identified light points; the retained 2D&ndash;3D correspondences are solved into two analytic pose candidates, and BranchSelectorNet decides &mdash; only under high confidence &mdash; whether the non-default branch should replace the traditional re-projection ranking.</figcaption>
+        <figcaption>The overall workflow of the proposed LightPoseNet-Select framework.</figcaption>
       </figure>
 
       <h3 class="sub-title">Synthetic Data Generation (UE5)</h3>
-      <p class="sub-desc">A UE5 underwater docking scene contains an AUV, a docking station carrying the T-shaped five-light planar array, and an onboard virtual camera (45&deg; downward pitch, 100&deg; FOV, 1280&times;720 at 10&nbsp;Hz). Rendering parameters vary water fog density, scene brightness, and marine-snow particle density to cover typical end-game visual degradation. 55 docking trajectories &mdash; 9,761 frames &mdash; are exported with camera intrinsics, AUV/station poses, and light-array geometry, from which keypoint, visibility, and 6-DoF pose ground truth are derived via the projection model. The split is trajectory-level (33/11/11) to prevent information leakage between adjacent frames.</p>
+      <p class="sub-desc"> A UE5-based underwater docking environment is constructed with an AUV, a guide-rod-assisted platform docking station equipped with a T-shaped five-light planar array, and an onboard virtual camera (45&deg; downward pitch, 100&deg; FOV, 1280&times;720 at 10&nbsp;Hz). To reproduce typical visual degradation during terminal docking, the environment varies water fog density, scene illumination, and marine-snow particle density. A total of 55 docking trajectories comprising 9,761 frames are collected, together with camera intrinsics, AUV and station poses, and light-array geometry. Semantic keypoint locations, visibility labels, and 6-DoF relative pose ground truth are then derived using the geometric projection model. To avoid information leakage from temporally adjacent frames, the dataset is split at the trajectory level into 33/11/11 trajectories for training, validation, and testing, respectively.
+      </p>
       <div class="stage-grid">
         <figure class="fig-card reveal">
           <img src="static/figures/fig-ue5-scene.png" alt="UE5 simulation scene">
-          <figcaption><b>Simulation scene.</b> The AUV (camera rigidly mounted underneath, pitched 45&deg; down) approaches the docking station along spline trajectories; the station carries the guide rod for coarse heading and the T-shaped lamp array for terminal-phase pose estimation.</figcaption>
+          <figcaption><b>Simulation scene.</b> The AUV (camera rigidly mounted underneath, pitched 45&deg; down) approaches the docking station along spline trajectories. The station integrates a guide rod for coarse directional guidance and a T-shaped five-light planar array for terminal relative pose estimation.</figcaption>
         </figure>
         <figure class="fig-card reveal">
           <img src="static/figures/fig-scenarios.png" alt="Dataset scenarios with varying degradation">
@@ -168,7 +127,7 @@
       <div class="star-divider" aria-hidden="true">* * *</div>
 
       <h3 class="sub-title">LightPoseNet: Multi-Task Keypoint Prediction</h3>
-      <p class="sub-desc">LightPoseNet is a fully convolutional encoder&ndash;decoder that casts light-array detection as <em>named semantic keypoint prediction</em>: each output channel is bound to one predefined lamp, so detection, identity assignment, and 2D&ndash;3D correspondence are solved in a single pass. Three parallel heads on shared features predict per-lamp heatmaps <b>H</b> (where the lamp is), confidences <b>C</b> (whether the observation is reliable), and geometric weights <b>W</b> (how much it should constrain the pose). Coordinates are decoded by temperature-softened Soft-Argmax for sub-pixel accuracy with differentiable gradients.</p>
+      <p class="sub-desc">LightPoseNet is a fully convolutional encoder&ndash;decoder that formulates light-array detection as <em>named semantic keypoint prediction</em>: each output channel is assigned to a predefined lamp, enabling detection, identity assignment, and 2D&ndash;3D correspondence to be established in a single forward pass. Three parallel heads operating on shared features predict per-lamp heatmaps <b>H</b> (where the lamp is), visibility confidences <b>C</b> (whether the observation is reliable), and geometric weights <b>W</b> (how strongly the observation should constrain pose estimation). Keypoint coordinates are decoded using temperature-scaled Soft-Argmax, providing differentiable sub-pixel localization.</p>
       <div class="stage-grid">
         <figure class="fig-card reveal">
           <img src="static/figures/fig-network.png" alt="LightPoseNet architecture">
@@ -201,6 +160,91 @@
     </div>
   </section>
 
+  <!-- ================= 02 实验视频 ================= -->
+  <section id="videos" class="section section-alt">
+    <div class="container">
+      <h2 class="sec-title"><span class="sec-num">03</span>&middot; Experiment Recordings</h2>
+
+      <h3 class="sub-title">UE5&ndash;Simulink Docking Simulation</h3>
+      <p class="sub-desc">To evaluate the vision module under closed-loop control, a UE5-Python co-simulation platform is established. UE5 renders the docking scene and transmits onboard camera images to a Python-based vision node via a local HTTP service, where the same LightPoseNet-BranchSelectorNet pipeline used in the offline evaluation is executed for relative pose estimation. The resulting pose errors are converted into velocity commands by a simplified proportional controller implemented as a three-state finite-state machine comprising TRACK, BLIND, and DONE. In the TRACK state, control commands are generated directly from the latest valid visual pose estimate. When visual observations are temporarily unavailable, the controller enters the BLIND state and propagates the vehicle state using velocity feedback and recent control history. The resulting velocity commands are then transmitted back to UE5 via UDP for closed-loop vehicle motion.</p>
+
+      <figure class="fig-card fig-wide reveal">
+        <img src="static/figures/fig-closedloop-system.png" alt="Closed-loop simulation platform">
+        <figcaption><b>Closed-loop simulation platform.</b> (a) Docking scene; (b) UE5 software interface; (c) Python vision client; (d) Simulink controller model.</figcaption>
+      </figure>
+
+      <h3 class="sub-title">Experiment Recordings</h3>
+      <!-- TODO: 请确认 rec-0001~0005 与偏航角 0°, −10°, −20°, +10°, +20° 的对应关系，目前按论文 5.7.2 节顺序假设 -->
+      <p class="sub-desc">Five simulation runs start about 10&nbsp;m from the docking point with initial yaw angles of 0&deg;, &minus;10&deg;, &minus;20&deg;, +10&deg;, and +20&deg;. All five runs drive the AUV to the station, with terminal distances of 0.015&ndash;0.040&nbsp;m (mean 0.0296&nbsp;m) &mdash; all within the 4&nbsp;cm position tolerance. <b>Left:</b> onboard camera view with real-time semantic keypoint detection and pose estimation overlays. <b>Right:</b> reference top view of the AUV approaching the docking station. Click any video to play; all recordings are muted.</p>
+
+      <div class="video-list reveal">
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0001.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Run 01 &mdash; initial yaw 0&deg;</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0002.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Run 02 &mdash; initial yaw &minus;10&deg;</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0003.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Run 03 &mdash; initial yaw &minus;20&deg;</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0004.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Run 04 &mdash; initial yaw +10&deg;</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/rec-0005.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>Run 05 &mdash; initial yaw +20&deg;</figcaption>
+        </figure>
+      </div>
+
+      <figure class="fig-card fig-wide reveal">
+        <img src="static/figures/fig-yaw-trajectories.png" alt="AUV trajectories and docking distance under different initial yaw angles">
+        <figcaption><b>Trajectories and docking-point distance.</b> Left: AUV paths relative to the station (UE world XY) for the five initial yaw angles; right: 3D docking-point distance over time, with the 4&nbsp;cm position tolerance marked. All runs converge to the station.</figcaption>
+      </figure>
+
+      <h3 class="sub-title">Terminal Accuracy of the Five Runs</h3>
+      <div class="table-wrap reveal">
+        <table>
+          <thead>
+            <tr><th>Run</th><th>Initial yaw</th><th>Initial distance (m)</th><th>Terminal distance (m)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>0&deg;</td><td>10.9</td><td>0.015</td></tr>
+            <tr><td>2</td><td>&minus;10&deg;</td><td>10.9</td><td>0.022</td></tr>
+            <tr><td>3</td><td>&minus;20&deg;</td><td>9.1</td><td>0.035</td></tr>
+            <tr><td>4</td><td>+10&deg;</td><td>9.8</td><td>0.036</td></tr>
+            <tr><td>5</td><td>+20&deg;</td><td>10.0</td><td>0.040</td></tr>
+          </tbody>
+        </table>
+        <p class="table-note">Mean terminal distance: <b>0.0296&nbsp;m</b> &mdash; all five runs are within the 4&nbsp;cm position tolerance.</p>
+      </div>
+    </div>
+  </section>
+
+
   <!-- ================= 04 定性结果 ================= -->
   <section id="showcase" class="section section-alt">
     <div class="container">
@@ -218,7 +262,7 @@
         </figure>
         <figure class="fig-card reveal">
           <img src="static/figures/fig-dist-results.png" alt="Per-frame keypoint and pose results at 3, 5, 7 and 10 meters">
-          <figcaption><b>Per-frame results.</b> Four samples at 3.00, 4.60, 6.26, and 8.52&nbsp;m with keypoint and pose readouts generated by the test program (in-figure text is raw debug output).</figcaption>
+          <figcaption><b>Per-frame results.</b> Four samples at 3.00, 4.60, 6.26, and 8.52&nbsp;m with keypoint and pose readouts generated by the test program.</figcaption>
         </figure>
       </div>
     </div>
@@ -249,7 +293,7 @@
           </thead>
           <tbody>
             <tr class="ours-row">
-              <td>All</td><td>9,636</td><td><span class="best">1.037</span></td><td><span class="best">0.755</span></td><td><span class="best">2.329</span></td><td>90.87</td><td><span class="best">99.83</span></td><td>99.95</td><td>90.48</td>
+              <td>All</td><td><span class="best">9,636</span></td><td><span class="best">1.037</span></td><td><span class="best">0.755</span></td><td><span class="best">2.329</span></td><td><span class="best">90.87</span></td><td><span class="best">99.83</span></td><td><span class="best">99.95</span></td><td><span class="best">90.48</span></td>
             </tr>
             <tr><td>Top-left</td><td>1,968</td><td>1.110</td><td>0.826</td><td>2.843</td><td>83.74</td><td>99.64</td><td>100.00</td><td>88.90</td></tr>
             <tr><td>Top-middle</td><td>1,967</td><td>0.864</td><td>0.681</td><td>2.126</td><td>93.49</td><td>99.85</td><td>100.00</td><td>91.36</td></tr>
@@ -306,7 +350,7 @@
           <tbody>
             <tr><td>Default candidate</td><td>1896 / 1897</td><td>0.1413</td><td>0.1259</td><td>1.488</td></tr>
             <tr><td>Strict rejection</td><td>1709 / 1897</td><td><span class="second">0.1262</span></td><td><span class="second">0.1130</span></td><td><span class="second">1.388</span></td></tr>
-            <tr class="ours-row"><td>Branch selector (ours)</td><td>1896 / 1897</td><td><span class="best">0.1403</span></td><td><span class="best">0.1250</span></td><td><span class="best">1.348</span></td></tr>
+            <tr class="ours-row"><td>Branch selector</td><td>1896 / 1897</td><td><span class="best">0.1403</span></td><td><span class="best">0.1250</span></td><td><span class="best">1.348</span></td></tr>
           </tbody>
         </table>
         <p class="table-note">At the same acceptance count (99.95%), the selector reduces mean translation error from 0.1413&nbsp;m to 0.1403&nbsp;m, depth error from 0.1259&nbsp;m to 0.1250&nbsp;m, and rotation error from 1.488&deg; to 1.348&deg;. Strict rejection scores lower only by discarding 188 ambiguous frames (acceptance drops to 90%) &mdash; a precision&ndash;coverage trade-off, not a better solver.</p>
@@ -425,8 +469,7 @@
         <button class="copy-btn" id="copyBib" type="button">Copy</button>
         <!-- TODO: 论文投稿/发表后替换为正式的 BibTeX 条目 -->
         <pre id="bibText">@article{lightposenet2026,
-  title   = {LightPoseNet-Select: Monocular Pose Estimation for AUV
-             Underwater Docking with a Planar Light Array},
+  title   = {LightPoseNet-Select: A Learning-Geometric Framework for Relative Pose Estimation in AUV Docking Using Planar Light Arrays},
   author  = {Author, One and Author, Two and Author, Three},
   journal = {TODO},
   year    = {2026}
