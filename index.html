@@ -24,7 +24,7 @@
     - 引用 BibTeX 条目（06 Citation 区）
   -->
   <title>LightPoseNet-Select — Monocular Pose Estimation for AUV Underwater Docking</title>
-  <meta name="description" content="LightPoseNet-Select: a learning-geometry integrated framework for relative pose estimation in AUV terminal docking with planar light arrays — UE5 synthetic dataset, pose-sensitive keypoint network, IPPE with learned branch selection, and closed-loop UE5-Simulink docking simulation.">
+  <meta name="description" content="LightPoseNet-Select: a learning-geometry integrated framework for relative pose estimation in AUV terminal docking with planar light arrays — 0.998 px keypoint error, learned branch selection, and closed-loop UE5-Simulink docking validated across yaw angles and environmental conditions.">
   <script>document.documentElement.classList.add('js');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,7 +74,9 @@
       <!-- 摘要区：上下结构，文字在上，对接流程图在下；整体套白底卡片框 -->
       <div class="abstract-panel">
         <div class="abstract-text">
-          <p>Autonomous underwater vehicle (AUV) terminal docking imposes stringent requirements on the accuracy of relative pose estimation. During the final alignment stage of guide-rod-assisted platform docking stations, vision-based localization using planar light arrays is constrained by unstable semantic correspondences, insufficient keypoint localization accuracy, and the inherent two-solution ambiguity of planar Perspective-<em>n</em>-Point (PnP), making conventional methods inadequate for high-precision docking. To address these challenges, this paper proposes <b>LightPoseNet-Select</b>, a learning-geometry integrated framework for relative pose estimation. A semantically annotated underwater docking dataset is first constructed using Unreal Engine 5 (UE5). Based on this dataset, a keypoint detection network, <b>LightPoseNet</b>, is developed to predict semantically labeled light points. A pose-sensitive regularization term is further introduced to guide the network toward keypoints that have greater influence on pose estimation, thereby establishing reliable 2D&ndash;3D correspondences. To resolve the intrinsic two-solution ambiguity of planar configurations, Infinitesimal Plane-Based Pose Estimation (IPPE) is employed to generate two pose candidates, and <b>BranchSelectorNet</b> is designed for learning-based branch selection. By jointly exploiting image appearance, geometric projections, and numerical pose features, BranchSelectorNet can correct erroneous branches produced by conventional reprojection-based ranking under degenerate viewpoints and thus reliably determine the correct pose. Experimental results show that LightPoseNet-Select achieves a mean keypoint localization error of <b>1.037&nbsp;px</b>. BranchSelectorNet successfully corrects seven catastrophic cases, reducing their mean rotation error from <b>39.36&deg;</b> to <b>1.38&deg;</b>. Further UE5-Simulink closed-loop simulations demonstrate successful vision-guided docking under different initial yaw angles, with a mean terminal position error of <b>0.0296&nbsp;m</b>. These results demonstrate that the proposed method provides accurate and reliable relative pose estimation for terminal docking with planar stations, offering a robust visual perception basis for autonomous AUV docking.</p>
+          <p>Autonomous underwater vehicle (AUV) terminal docking requires accurate relative pose estimation. For guide-rod-assisted platform docking stations, planar light-array localization is challenged by unstable semantic correspondences, limited keypoint accuracy, and the inherent two-solution ambiguity of planar Perspective-<em>n</em>-Point (PnP). To address these issues, this paper proposes <b>LightPoseNet-Select</b>, a learning-geometry integrated framework for relative pose estimation. A semantically annotated underwater docking dataset is constructed using Unreal Engine 5 (UE5), and <b>LightPoseNet</b> is developed for semantic light-point prediction with pose-sensitive supervision. Infinitesimal Plane-Based Pose Estimation (IPPE) generates two planar pose candidates, while <b>BranchSelectorNet</b> resolves branch ambiguity by jointly exploiting image appearance, geometric projections, and numerical pose features.</p>
+          <p>LightPoseNet achieves a mean keypoint localization error of <b>0.998&nbsp;px</b>. BranchSelectorNet corrects seven severe branch-selection failures, reducing their mean rotation error from <b>39.36&deg;</b> to <b>1.38&deg;</b>. UE5-Simulink closed-loop simulations achieve successful docking under all five tested initial yaw conditions, with a mean terminal docking-point error of <b>2.96&nbsp;cm</b>. In ten additional environmental trials, guide-rod contact is achieved in nine trials, with a mean terminal three-dimensional distance of <b>2.33&nbsp;cm</b> among the successful runs.</p>
+          <p>These results demonstrate the effectiveness of LightPoseNet-Select for accurate and task-oriented relative pose estimation in terminal AUV docking. The results and experimental videos of this project are publicly available at <a href="https://zzz1e.github.io/">https://zzz1e.github.io/</a>.</p>
         </div>
         <figure class="fig-card reveal abstract-fig">
           <img src="static/figures/fig-docking-process.png" alt="Vision-guided AUV docking process">
@@ -206,7 +208,7 @@
         <button class="more-btn" data-toggle="#moreFSM"><span class="btn-label">Controller states (TRACK / BLIND / DONE)</span><span class="caret"></span></button>
       </div>
 
-      <h3 class="sub-title">Closed-Loop Visual Docking Experiments</h3>
+      <h3 class="sub-title">Closed-Loop Docking under Different Initial Yaw Angles</h3>
       <!-- TODO: 请确认 rec-0001~0005 与偏航角 0°, −10°, −20°, +10°, +20° 的对应关系，目前按论文 5.7.2 节顺序假设 -->
       <p class="sub-desc">Five simulation trials are conducted with the AUV initialized approximately 10&nbsp;m in front of the docking point, at initial yaw angles of 0&deg;, &minus;10&deg;, &minus;20&deg;, +10&deg;, and +20&deg;. In all cases, the AUV docking point converges toward the Station Docking Point, with terminal distances of 0.015&ndash;0.040&nbsp;m (mean 0.0296&nbsp;m) &mdash; all within the 4&nbsp;cm position tolerance. <b>Left:</b> onboard camera view with real-time semantic keypoint detection and pose estimation overlays. <b>Right:</b> reference top view of the AUV approaching the docking station. Click any video to play; all recordings are muted.</p>
 
@@ -299,6 +301,176 @@
           <figcaption>(e) Initial yaw +20&deg;</figcaption>
         </figure>
       </div>
+
+      <div class="star-divider" aria-hidden="true">* * *</div>
+
+      <!-- ==================== 环境闭环对接评估（论文 5.7.3，新增实验） ==================== -->
+      <h3 class="sub-title">Environmental Closed-Loop Docking Evaluation</h3>
+      <p class="sub-desc">To further evaluate the system-level performance of the perception-control pipeline under varying underwater visual conditions, <b>10 additional closed-loop docking trials</b> were conducted with the initial yaw angle fixed at 0&deg; and the same initial vehicle position. A reference condition of fog&nbsp;=&nbsp;2.5, sun&nbsp;=&nbsp;5, and spawn rate&nbsp;=&nbsp;0 was used; the fog, illumination, and marine-snow emission rate were then varied individually, and an additional combined stress condition (fog&nbsp;=&nbsp;5, sun&nbsp;=&nbsp;5, snow&nbsp;=&nbsp;1500/s) was included. Docking success is defined by the latched overlap signal between the AUV docking mechanism and the station guide rod (cross-checked with the contact signal in Simulink); the DockingPoint distance is retained only as a geometric diagnostic, because successful guide-rod engagement may occur even when the instantaneous point-to-point distance slightly exceeds the 4&nbsp;cm threshold used in the yaw-angle batch.</p>
+
+      <div class="table-wrap reveal">
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Fog</th>
+              <th>Sun</th>
+              <th>Spawn (/s)</th>
+              <th>Contact</th>
+              <th>Contact time (s)</th>
+              <th>Final 3D (cm)</th>
+              <th>Final XY (cm)</th>
+              <th>Final &Delta;Z (cm)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>E01</td><td>0.5</td><td>5</td><td>0</td><td><b>Yes</b></td><td>116.37</td><td>4.58</td><td>1.48</td><td>4.34</td></tr>
+            <tr><td>E02</td><td>2.5</td><td>5</td><td>0</td><td><b>Yes</b></td><td>117.52</td><td>2.32</td><td>1.59</td><td>1.69</td></tr>
+            <tr><td>E03</td><td>2.5</td><td>5</td><td>500</td><td><b>Yes</b></td><td>117.41</td><td>3.24</td><td>0.71</td><td>3.16</td></tr>
+            <tr><td>E04</td><td>2.5</td><td>5</td><td>1000</td><td><b>Yes</b></td><td>118.01</td><td>2.05</td><td>1.07</td><td>1.75</td></tr>
+            <tr><td>E05</td><td>2.5</td><td>5</td><td>1500</td><td><b>Yes</b></td><td>119.10</td><td><span class="best">0.91</span></td><td>0.85</td><td>&minus;0.30</td></tr>
+            <tr><td>E06</td><td>2.5</td><td>10</td><td>0</td><td><b>Yes</b></td><td>121.21</td><td>2.55</td><td>2.29</td><td>&minus;1.13</td></tr>
+            <tr><td>E07</td><td>2.5</td><td>20</td><td>0</td><td><span class="second">No</span></td><td>&ndash;</td><td>10.24</td><td>6.04</td><td>&minus;8.27</td></tr>
+            <tr><td>E08</td><td>3.5</td><td>5</td><td>0</td><td><b>Yes</b></td><td>118.83</td><td>1.31</td><td>1.01</td><td>0.83</td></tr>
+            <tr><td>E09</td><td>5.0</td><td>5</td><td>0</td><td><b>Yes</b></td><td>119.37</td><td>2.23</td><td>2.22</td><td>0.13</td></tr>
+            <tr><td>E10</td><td>5.0</td><td>5</td><td>1500</td><td><b>Yes</b></td><td>118.05</td><td>1.75</td><td>1.71</td><td>&minus;0.35</td></tr>
+          </tbody>
+        </table>
+        <p class="table-note">Environmental settings and closed-loop docking results. <b>9 of 10</b> trials achieved guide-rod contact; contact time 116.37&ndash;121.21&nbsp;s (mean 118.43&nbsp;s); terminal 3D distance 0.91&ndash;4.58&nbsp;cm (mean <b>2.33&nbsp;cm</b> among successful runs). E10 &mdash; the combined fog + marine-snow stress condition &mdash; contacted at 118.05&nbsp;s with a 1.75&nbsp;cm terminal distance.</p>
+      </div>
+
+      <figure class="fig-card fig-xwide reveal">
+        <img src="static/figures/fig-env-trajectories.png" alt="Individual closed-loop AUV trajectories for the ten environmental trials">
+        <figcaption><b>Individual closed-loop AUV trajectories for the ten environmental trials.</b> Labels indicate the fog (F), sun (L), and marine-snow spawn-rate (S) settings.</figcaption>
+      </figure>
+      <figure class="fig-card fig-xwide reveal">
+        <img src="static/figures/fig-env-distance.png" alt="Docking-point distance profiles grouped by environmental variation">
+        <figcaption><b>Docking-point distance profiles grouped by environmental variation: fog, illumination, marine snow, and combined stress.</b> Most trajectories exhibit a similar global convergence trend from approximately 11&nbsp;m toward the station; differences concentrate in the terminal approach stage.</figcaption>
+      </figure>
+
+      <p class="sub-desc">Frame-wise keypoint and pose errors were reconstructed using UE geometric ground truth. Across the nine successful trials the metrics remained within a compact range. <b>E07 (sun&nbsp;=&nbsp;20)</b> was the only run without guide-rod contact: at termination the 3D distance was 10.24&nbsp;cm (horizontal offset 6.04&nbsp;cm, vertical offset magnitude 8.27&nbsp;cm). Under strong illumination, the brightness contrast between the light points and the surroundings is substantially reduced, and some frames exhibit failed light-array detection or too few valid light points &mdash; indicating that perceptual robustness under low-contrast and overexposure conditions can still be improved.</p>
+
+      <!-- 环境感知指标明细（可折叠） -->
+      <div class="more-block" id="moreEnvPerception">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Trial</th>
+                <th>Mean Pixel&nbsp;(px)</th>
+                <th>PCK@2&nbsp;(%)</th>
+                <th>Pixel P95&nbsp;(px)</th>
+                <th>T Mean&nbsp;(m)</th>
+                <th>T P95&nbsp;(m)</th>
+                <th>R Mean&nbsp;(&deg;)</th>
+                <th>R P95&nbsp;(&deg;)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>E01</td><td>1.188</td><td>85.30</td><td>2.606</td><td>0.121</td><td>0.363</td><td>0.950</td><td>1.818</td></tr>
+              <tr><td>E02</td><td><span class="best">1.006</span></td><td><span class="best">92.04</span></td><td><span class="best">2.274</span></td><td>0.097</td><td>0.305</td><td>0.775</td><td>1.315</td></tr>
+              <tr><td>E03</td><td>1.125</td><td>90.03</td><td>2.491</td><td><span class="best">0.093</span></td><td>0.278</td><td>0.731</td><td>1.231</td></tr>
+              <tr><td>E04</td><td>1.084</td><td>89.76</td><td>2.601</td><td>0.111</td><td><span class="best">0.251</span></td><td>0.781</td><td>1.577</td></tr>
+              <tr><td>E05</td><td>1.077</td><td>88.19</td><td>2.336</td><td>0.098</td><td>0.276</td><td>0.734</td><td>1.358</td></tr>
+              <tr><td>E06</td><td>1.164</td><td>87.31</td><td>2.650</td><td>0.098</td><td>0.294</td><td>0.787</td><td>1.389</td></tr>
+              <tr><td>E07</td><td>2.733</td><td>77.93</td><td>4.617</td><td>0.131</td><td>0.315</td><td>2.129</td><td>11.285</td></tr>
+              <tr><td>E08</td><td>1.095</td><td>88.45</td><td>2.390</td><td>0.098</td><td>0.279</td><td><span class="best">0.726</span></td><td>1.358</td></tr>
+              <tr><td>E09</td><td>1.304</td><td>82.90</td><td>2.389</td><td>0.104</td><td>0.271</td><td>0.933</td><td>1.605</td></tr>
+              <tr><td>E10</td><td>1.179</td><td>84.46</td><td>2.887</td><td>0.107</td><td>0.277</td><td>1.078</td><td>1.671</td></tr>
+            </tbody>
+          </table>
+          <p class="table-note">Perception and pose-estimation performance under different environmental conditions (reconstructed with UE geometric ground truth).</p>
+        </div>
+      </div>
+      <div class="btn-center">
+        <button class="more-btn" data-toggle="#moreEnvPerception"><span class="btn-label">Per-trial perception metrics</span><span class="caret"></span></button>
+      </div>
+
+      <h3 class="sub-title">Environmental Trial Recordings</h3>
+      <p class="sub-desc">Screen recordings of the ten environmental closed-loop trials (E01&ndash;E10). Conditions follow the table above; all recordings are muted.</p>
+
+      <div class="video-list reveal">
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E01.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E01 &mdash; fog 0.5, sun 5, snow 0/s &middot; contact &#10003; (4.58&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E02.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E02 &mdash; fog 2.5, sun 5, snow 0/s (reference) &middot; contact &#10003; (2.32&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E03.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E03 &mdash; fog 2.5, sun 5, snow 500/s &middot; contact &#10003; (3.24&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E04.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E04 &mdash; fog 2.5, sun 5, snow 1000/s &middot; contact &#10003; (2.05&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E05.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E05 &mdash; fog 2.5, sun 5, snow 1500/s &middot; contact &#10003; (0.91&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E06.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E06 &mdash; fog 2.5, sun 10, snow 0/s &middot; contact &#10003; (2.55&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E07.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E07 &mdash; fog 2.5, sun 20, snow 0/s &middot; <b>no contact</b> (strong illumination; 10.24&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E08.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E08 &mdash; fog 3.5, sun 5, snow 0/s &middot; contact &#10003; (1.31&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E09.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E09 &mdash; fog 5.0, sun 5, snow 0/s &middot; contact &#10003; (2.23&nbsp;cm)</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="video-box">
+            <video controls muted loop playsinline preload="metadata">
+              <source src="static/videos/E10.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>E10 &mdash; fog 5.0, sun 5, snow 1500/s (combined stress) &middot; contact &#10003; (1.75&nbsp;cm)</figcaption>
+        </figure>
+      </div>
     </div>
   </section>
 
@@ -332,7 +504,7 @@
 
       <!-- 5.1 关键点定位（论文 6.1 / 表 4） -->
       <h3 class="sub-title">Keypoint Localization Performance</h3>
-      <p class="sub-desc">The test set contains 2,205 images with a total of 9,636 visible semantic light points. LightPoseNet achieves a mean localization error of <b>1.037&nbsp;px</b> and a median error of 0.755&nbsp;px, while 95% of the visible light points exhibit errors below 2.329&nbsp;px. The corresponding NME is 0.01236 &mdash; the average localization error accounts for only 1.236% of the projected light-array diagonal. The PCK reaches 90.87% at 2&nbsp;px and 99.83% at 5&nbsp;px.</p>
+      <p class="sub-desc">The test set contains 2,205 images with a total of 9,636 visible semantic light points. LightPoseNet achieves a mean localization error of <b>0.998&nbsp;px</b> and a median error of 0.773&nbsp;px, while 95% of the visible light points exhibit errors below 2.197&nbsp;px. The corresponding NME is 0.01369 &mdash; the average localization error accounts for only 1.369% of the projected light-array diagonal. The PCK reaches 92.27% at 2&nbsp;px and 99.84% at 5&nbsp;px.</p>
       <div class="table-wrap reveal">
         <table>
           <thead>
@@ -347,13 +519,13 @@
           </thead>
           <tbody>
             <tr class="ours-row">
-              <td>All</td><td>9,636</td><td><span class="best">1.037</span></td><td><span class="best">0.755</span></td><td><span class="best">2.329</span></td><td><span class="best">0.01236</span></td>
+              <td>All</td><td>9,636</td><td><span class="best">0.998</span></td><td><span class="best">0.773</span></td><td><span class="best">2.197</span></td><td><span class="best">0.01369</span></td>
             </tr>
-            <tr><td>Upper-left</td><td>1,968</td><td>1.110</td><td>0.826</td><td>2.843</td><td>0.01418</td></tr>
-            <tr><td>Upper-center</td><td>1,967</td><td>0.864</td><td>0.681</td><td>2.126</td><td>0.01080</td></tr>
-            <tr><td>Upper-right</td><td>1,970</td><td>1.277</td><td>0.732</td><td>1.977</td><td>0.01182</td></tr>
-            <tr><td>Center</td><td>1,899</td><td>0.938</td><td>0.736</td><td>2.260</td><td>0.01192</td></tr>
-            <tr><td>Lower-center</td><td>1,832</td><td>0.987</td><td>0.817</td><td>2.244</td><td>0.01310</td></tr>
+            <tr><td>Upper-left</td><td>1,968</td><td>1.260</td><td>0.826</td><td>2.615</td><td>0.01559</td></tr>
+            <tr><td>Upper-center</td><td>1,967</td><td>0.885</td><td>0.670</td><td>2.354</td><td>0.01233</td></tr>
+            <tr><td>Upper-right</td><td>1,970</td><td>1.036</td><td>0.883</td><td>2.186</td><td>0.01400</td></tr>
+            <tr><td>Center</td><td>1,899</td><td>0.873</td><td>0.692</td><td>1.999</td><td>0.01260</td></tr>
+            <tr><td>Lower-center</td><td>1,832</td><td>0.929</td><td>0.805</td><td>2.038</td><td>0.01388</td></tr>
           </tbody>
         </table>
         <p class="table-note">Pixel-level localization error results on the test set. NME normalizes the error by the diagonal length of the bounding box enclosing the five ground-truth projected light points.</p>
@@ -371,13 +543,13 @@
           </thead>
           <tbody>
             <tr class="ours-row">
-              <td>All</td><td><span class="best">90.87</span></td><td><span class="best">99.83</span></td><td><span class="best">99.95</span></td><td><span class="best">0.9048</span></td>
+              <td>All</td><td><span class="best">92.27</span></td><td><span class="best">99.84</span></td><td><span class="best">99.92</span></td><td><span class="best">0.9059</span></td>
             </tr>
-            <tr><td>Upper-left</td><td>83.74</td><td>99.64</td><td>100.00</td><td>0.8890</td></tr>
-            <tr><td>Upper-center</td><td>93.49</td><td>99.85</td><td>100.00</td><td>0.9136</td></tr>
-            <tr><td>Upper-right</td><td>95.23</td><td>99.80</td><td>99.80</td><td>0.9126</td></tr>
-            <tr><td>Center</td><td>91.84</td><td>99.95</td><td>99.95</td><td>0.9074</td></tr>
-            <tr><td>Lower-center</td><td>90.01</td><td>99.95</td><td>100.00</td><td>0.9013</td></tr>
+            <tr><td>Upper-left</td><td>90.45</td><td>99.64</td><td>99.80</td><td>0.8965</td></tr>
+            <tr><td>Upper-center</td><td>91.05</td><td>99.90</td><td>100.00</td><td>0.9115</td></tr>
+            <tr><td>Upper-right</td><td>90.71</td><td>99.80</td><td>99.85</td><td>0.8983</td></tr>
+            <tr><td>Center</td><td>95.00</td><td>99.95</td><td>99.95</td><td>0.9164</td></tr>
+            <tr><td>Lower-center</td><td>94.38</td><td>99.95</td><td>100.00</td><td>0.9071</td></tr>
           </tbody>
         </table>
         <p class="table-note">PCK and PCK-AUC statistics on the test set.</p>
