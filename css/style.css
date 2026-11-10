@@ -255,6 +255,47 @@ img { max-width: 100%; display: block; }
   margin: 28px auto 0;
 }
 
+/* 创新点列表（摘要下方） */
+.contrib {
+  margin-top: 26px;
+  padding: 0 4px;
+  counter-reset: contrib;
+}
+.contrib-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+  margin-bottom: 14px;
+}
+.contrib ol { list-style: none; margin: 0; padding: 0; }
+.contrib li {
+  position: relative;
+  padding-left: 46px;
+  margin-bottom: 14px;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--muted);
+  text-align: justify;
+  hyphens: auto;
+}
+.contrib li::before {
+  counter-increment: contrib;
+  content: counter(contrib, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  background: var(--accent-light);
+  border-radius: 6px;
+  padding: 2px 7px;
+  letter-spacing: 0.02em;
+}
+.contrib li b { color: var(--body-text); }
+
 /* ---------------- 图片卡片 ---------------- */
 
 .fig-card {
@@ -613,7 +654,26 @@ tr.ours-row td:first-child { color: var(--accent-dark); font-weight: 700; }
   color: var(--muted);
 }
 
-/* ---------------- 06 引用 ---------------- */
+/* ---------------- 06 结论 ---------------- */
+
+.concl-panel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 32px 38px;
+  box-shadow: var(--shadow);
+}
+.concl-panel p {
+  font-size: 15px;
+  line-height: 1.78;
+  color: var(--body-text);
+  text-align: justify;
+  hyphens: auto;
+}
+.concl-panel p + p { margin-top: 14px; }
+.concl-panel p:last-child { color: var(--muted); }
+
+/* ---------------- 07 引用 ---------------- */
 
 .cite-card {
   position: relative;
